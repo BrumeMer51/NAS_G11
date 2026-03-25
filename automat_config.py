@@ -4,21 +4,28 @@ import ipaddress
 
 def generer_configs(fichier_json):
     with open(fichier_json, "r", encoding="utf-8") as f:
-        data = json.load(f)["reseau"]
+        data = json.load(f)
 
-    parametres = data["parametres_globaux"]
-    routeurs = data["routeurs"]
+    provider=data["Provider"]
+    liens_inter=data["Plage_liens_inter"]
+    parametres = provider["parametres_globaux"]
+    routeurs_provider = provider["routeurs"]
     ospf_proc = parametres["ospf_process"]
     bgp_as = parametres["bgp_as"]
 
     # --- AUTOMATISATION DE L'ADRESSAGE IP ---
     # 1. Préparation des générateurs de sous-réseaux
     reseau_liens = ipaddress.IPv4Network(parametres["plage_liens"])
-    print(reseau_liens)  # Affiche le réseau de base pour les liens
+    reseau_liens_inter = ipaddress.IPv4Network(liens_inter)
+    #print(reseau_liens)  # Affiche le réseau de base pour les liens
     generateur_liens_30 = reseau_liens.subnets(new_prefix=30)
-    
+    generateur_liens_inter_30 = reseau_liens_inter.subnets(new_prefix=30)
+
     # Dictionnaire pour stocker le /30 attribué à chaque paire de routeurs (ex: ("P1", "PE1") : 192.168.10.0/30)
     liens_alloues = {}
+
+    # Dictionnaire pour stocker le /30 attribué à chaque paire PE-CE de routeurs (ex: ("CE1", "PE1") : 10.0.1.0/30)
+    liens_inter_alloues = {}
 
     def get_ip_lien(routeur_actuel, voisin):
         # Trie par ordre alphabétique pour créer une clé unique pour le lien (équivalent du routeurMin)
@@ -37,12 +44,30 @@ def generer_configs(fichier_json):
             return ip_dispos[0], masque
         else:
             return ip_dispos[1], masque
+        
+    def get_ip_lien_inter(routeur_actuel, voisin):
+         # Trie par ordre alphabétique pour créer une clé unique pour le lien (équivalent du routeurMin)
+        cle_lien = tuple(sorted([routeur_actuel, voisin]))
+        
+        # Si le lien n'a pas encore de réseau, on lui attribue le prochain /30 dispo
+        if cle_lien not in liens_inter_alloues:
+            liens_inter_alloues[cle_lien] = next(generateur_liens_inter_30)
+        
+        sous_reseau = liens_inter_alloues[cle_lien]
+        ip_dispos = list(sous_reseau.hosts()) # Liste des 2 IP utilisables du /30
+        masque = sous_reseau.netmask
+        
+        # Le premier routeur par ordre alphabétique prend la 1ère IP, l'autre prend la 2ème IP
+        if routeur_actuel == cle_lien[0]:
+            return ip_dispos[0], masque
+        else:
+            return ip_dispos[1], masque
 
     # --- GÉNÉRATION DES FICHIERS ---
     dossier_sortie = "cfg_mpls"
     os.makedirs(dossier_sortie, exist_ok=True)
 
-    for nom_routeur, infos in routeurs.items():
+    for nom_routeur, infos in routeurs_provider.items():
         nom_fichier = f"{dossier_sortie}/{nom_routeur}_startup-config.cfg"
         
         # Calcul de la Loopback (ex: id=1 -> 192.168.255.1)
@@ -94,11 +119,17 @@ def generer_configs(fichier_json):
                 cfg.write(f"interface {nom_iface}\n")
                 
                 if voisin:
-                    ip_iface, masque = get_ip_lien(nom_routeur, voisin)
-                    cfg.write(f" ip address {ip_iface} {masque}\n")
-                    cfg.write(f" ip ospf {ospf_proc} area 0\n")
-                    cfg.write(" negotiation auto\n")
-                    cfg.write(" mpls ip\n")
+                    if "CE" not in voisin:
+                        ip_iface, masque = get_ip_lien(nom_routeur, voisin)
+                        cfg.write(f" ip address {ip_iface} {masque}\n")
+                        cfg.write(f" ip ospf {ospf_proc} area 0\n")
+                        cfg.write(" negotiation auto\n")
+                        cfg.write(" mpls ip\n")
+                    else :
+                        ip_iface, masque = get_ip_lien_inter(nom_routeur, voisin)
+                        cfg.write(f" ip address {ip_iface} {masque}\n")
+                        cfg.write(" negotiation auto\n")
+
                 else:
                     cfg.write(" no ip address\n")
                     cfg.write(" shutdown\n")
@@ -125,7 +156,7 @@ def generer_configs(fichier_json):
             # Trouver l'autre PE (logique simplifiée pour un lab à 2 PE)
             if "PE" in nom_routeur:
                 # On ajoute les voisins iBGP :
-                for autre_nom, autre_infos in routeurs.items():
+                for autre_nom, autre_infos in routeurs_provider.items():
                     if "PE" in autre_nom and autre_nom != nom_routeur:
                         autre_ip_loop = parametres["plage_loopbacks"].replace("0/24", str(autre_infos["id"]))
                         cfg.write(f" neighbor {autre_ip_loop} remote-as 100\n")
@@ -133,7 +164,7 @@ def generer_configs(fichier_json):
                         cfg.write(f"!\n")
                 cfg.write(f" address-family vpnv4\n")
                 # On ajouter les voisins dans l'address-family vpnv4 : 
-                for autre_nom, autre_infos in routeurs.items():
+                for autre_nom, autre_infos in routeurs_provider.items():
                     if "PE" in autre_nom and autre_nom != nom_routeur:
                         cfg.write(f"  neighbor {autre_ip_loop} activate\n")
                         cfg.write(f"  neighbor {autre_ip_loop} send-community both\n")
