@@ -14,14 +14,14 @@ def generer_configs(fichier_json):
     # --- AUTOMATISATION DE L'ADRESSAGE IP ---
     # 1. Préparation des générateurs de sous-réseaux
     reseau_liens = ipaddress.IPv4Network(parametres["plage_liens"])
-    print(reseau_liens)  # Affiche le réseau de base pour les liens (ex:
+    print(reseau_liens)  # Affiche le réseau de base pour les liens
     generateur_liens_30 = reseau_liens.subnets(new_prefix=30)
     
     # Dictionnaire pour stocker le /30 attribué à chaque paire de routeurs (ex: ("P1", "PE1") : 192.168.10.0/30)
     liens_alloues = {}
 
     def get_ip_lien(routeur_actuel, voisin):
-        # Trie par ordre alphabétique pour créer une clé unique pour le lien (équivalent de ton routeurMin)
+        # Trie par ordre alphabétique pour créer une clé unique pour le lien (équivalent du routeurMin)
         cle_lien = tuple(sorted([routeur_actuel, voisin]))
         
         # Si le lien n'a pas encore de réseau, on lui attribue le prochain /30 dispo
@@ -122,7 +122,7 @@ def generer_configs(fichier_json):
                 cfg.write(f"router bgp {bgp_as}\n")
                 cfg.write(" bgp log-neighbor-changes\n")
     
-    # Trouver l'autre PE (logique simplifiée pour un lab à 2 PE)
+            # Trouver l'autre PE (logique simplifiée pour un lab à 2 PE)
                 for autre_nom, autre_infos in routeurs.items():
                     if "PE" in autre_nom and autre_nom != nom_routeur:
                         autre_ip_loop = parametres["plage_loopbacks"].replace("0/24", str(autre_infos["id"]))
@@ -133,7 +133,7 @@ def generer_configs(fichier_json):
                         cfg.write(f"  neighbor {autre_ip_loop} activate\n")
                         cfg.write(f"  neighbor {autre_ip_loop} send-community both\n")
                         cfg.write(f" exit-address-family\n")
-    cfg.write("!\n")
+            cfg.write("!\n")
             cfg.write("ip forward-protocol nd\n")
             cfg.write("!\n!\n")
             cfg.write("no ip http server\n")
