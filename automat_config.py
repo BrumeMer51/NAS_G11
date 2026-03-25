@@ -86,6 +86,18 @@ def generer_configs(fichier_json):
             cfg.write("!\n")
             cfg.write("boot-start-marker\n")
             cfg.write("boot-end-marker\n")
+            if (parametres["vrf"] != None) and ("PE" in nom_routeur) :
+                for client in parametres["vrf"] :
+                    print(client)
+                    cfg.write(f"vrf definition {client} \n")
+                    cfg.write(f" rd {parametres["vrf"][client]["rd"]} \n")
+                    cfg.write(f" route-target export {parametres["vrf"][client]["rt"]} \n")
+                    cfg.write(f" route-target import {parametres["vrf"][client]["rt"]} \n")
+                    cfg.write(" !\n")
+                    cfg.write(" address-family ipv4 \n")
+                    cfg.write(" exit-adress-family \n")
+                    cfg.write("!\n")
+
             cfg.write("!\n!\n!\n")
             cfg.write("no aaa new-model\n")
             cfg.write("no ip icmp rate-limit unreachable\n")
@@ -198,7 +210,7 @@ def generer_configs(fichier_json):
             cfg.write(" login\n")
             cfg.write("!\n!\nend\n")
 
-        print(f"✅ Fichier généré avec succès : {nom_fichier}")
+        print(f"Fichier généré avec succès : {nom_fichier}")
 
 if __name__ == "__main__":
     generer_configs("intention.json")
