@@ -86,9 +86,10 @@ def generer_configs(fichier_json):
             cfg.write("!\n")
             cfg.write("boot-start-marker\n")
             cfg.write("boot-end-marker\n")
+
+            # Configuration VRF (si applicable et seulement pour les PE) :
             if (parametres["vrf"] != None) and ("PE" in nom_routeur) :
                 for client in parametres["vrf"] :
-                    print(client)
                     cfg.write(f"vrf definition {client} \n")
                     cfg.write(f" rd {parametres["vrf"][client]["rd"]} \n")
                     cfg.write(f" route-target export {parametres["vrf"][client]["rt"]} \n")
@@ -118,7 +119,7 @@ def generer_configs(fichier_json):
             cfg.write(f" ip ospf {ospf_proc} area 0\n")
             cfg.write("!\n")
 
-            # Interface FastEthernet0/0 (Désactivée par défaut comme dans ton show run)
+            # Interface FastEthernet0/0 (Désactivée par défaut)
             cfg.write("interface FastEthernet0/0\n")
             cfg.write(" no ip address\n")
             cfg.write(" shutdown\n")
@@ -131,6 +132,8 @@ def generer_configs(fichier_json):
                 cfg.write(f"interface {nom_iface}\n")
                 
                 if voisin:
+                    if iface_data.get("vrf") != None :
+                         cfg.write(f" vrf forwarding {iface_data.get('vrf')}\n")
                     if "CE" not in voisin:
                         ip_iface, masque = get_ip_lien(nom_routeur, voisin)
                         cfg.write(f" ip address {ip_iface} {masque}\n")
