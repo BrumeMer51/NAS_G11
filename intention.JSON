@@ -64,7 +64,8 @@
       "ospf_process": null,
       "plage_loopbacks": "192.145.255.0/24",
       "plage_liens": "192.145.10.0/24",
-      "bgp_as": 2
+      "bgp_as": 2,
+      "vrf" : null
     },
     "routeurs": {
       "CE1": {
@@ -80,7 +81,8 @@
       "ospf_process": null,
       "plage_loopbacks": "192.146.255.0/24",
       "plage_liens": "192.146.10.0/24",
-      "bgp_as": 3
+      "bgp_as": 3,
+      "vrf" : null
     },
     "routeurs": {
       "CE4": {
@@ -96,7 +98,8 @@
       "ospf_process": null,
       "plage_loopbacks": "192.26.255.0/24",
       "plage_liens": "192.26.10.0/24",
-      "bgp_as": 8
+      "bgp_as": 8,
+      "vrf" : null
     },
     "routeurs": {
       "CE2": {
@@ -112,7 +115,8 @@
       "ospf_process": null,
       "plage_loopbacks": "192.27.255.0/24",
       "plage_liens": "192.27.10.0/24",
-      "bgp_as": 9
+      "bgp_as": 9,
+      "vrf" : null
     },
     "routeurs": {
       "CE3": {
