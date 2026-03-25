@@ -123,16 +123,22 @@ def generer_configs(fichier_json):
                 cfg.write(" bgp log-neighbor-changes\n")
     
             # Trouver l'autre PE (logique simplifiée pour un lab à 2 PE)
+            if "PE" in nom_routeur:
+                # On ajoute les voisins iBGP :
                 for autre_nom, autre_infos in routeurs.items():
                     if "PE" in autre_nom and autre_nom != nom_routeur:
                         autre_ip_loop = parametres["plage_loopbacks"].replace("0/24", str(autre_infos["id"]))
                         cfg.write(f" neighbor {autre_ip_loop} remote-as 100\n")
                         cfg.write(f" neighbor {autre_ip_loop} update-source Loopback0\n")
                         cfg.write(f"!\n")
-                        cfg.write(f" address-family vpnv4\n")
+                cfg.write(f" address-family vpnv4\n")
+                # On ajouter les voisins dans l'address-family vpnv4 : 
+                for autre_nom, autre_infos in routeurs.items():
+                    if "PE" in autre_nom and autre_nom != nom_routeur:
                         cfg.write(f"  neighbor {autre_ip_loop} activate\n")
                         cfg.write(f"  neighbor {autre_ip_loop} send-community both\n")
-                        cfg.write(f" exit-address-family\n")
+                cfg.write(f" exit-address-family\n")
+            
             cfg.write("!\n")
             cfg.write("ip forward-protocol nd\n")
             cfg.write("!\n!\n")

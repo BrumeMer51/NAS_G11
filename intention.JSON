@@ -5,7 +5,17 @@
       "ospf_process": 1,
       "plage_loopbacks": "192.168.255.0/24",
       "plage_liens": "192.168.10.0/24",
-      "bgp_as": 100
+      "bgp_as": 100,
+      "vrf" : {
+        "Client1" : {
+          "rd" : "100:1",
+          "rt" : "100:111"
+        },
+        "Client2" : {
+          "rd" : "100:2",
+          "rt" : "100:222"
+        }
+      }
     },
     "routeurs": {
       "PE1": {
