@@ -1,4 +1,5 @@
 {
+  "Plage_liens_inter":"10.0.0.0/24",
   "Provider": {
     "parametres_globaux": {
       "ospf_process": 1,
