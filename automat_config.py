@@ -46,7 +46,7 @@ def generer_configs(fichier_json):
             return ip_dispos[1], masque
         
     def get_ip_lien_inter(routeur_actuel, voisin):
-         # Trie par ordre alphabétique pour créer une clé unique pour le lien (équivalent du routeurMin)
+        # Trie par ordre alphabétique pour créer une clé unique pour le lien (équivalent du routeurMin)
         cle_lien = tuple(sorted([routeur_actuel, voisin]))
         
         # Si le lien n'a pas encore de réseau, on lui attribue le prochain /30 dispo
@@ -76,7 +76,7 @@ def generer_configs(fichier_json):
         router_id_ospf = f"{infos['id']}.{infos['id']}.{infos['id']}.{infos['id']}"
 
         with open(nom_fichier, "w", encoding="utf-8") as cfg:
-            # En-tête (exactement comme ton show run)
+            # En-tête
             cfg.write("!\n")
             cfg.write("version 15.2\n")
             cfg.write("service timestamps debug datetime msec\n")
@@ -151,14 +151,6 @@ def generer_configs(fichier_json):
                     cfg.write(" negotiation auto\n")
                 cfg.write("!\n")
 
-            # Interface GigabitEthernet3/0 (Désactivée pour matcher ton show run si non utilisée)
-            if "GigabitEthernet3/0" not in infos["interfaces"]:
-                cfg.write("interface GigabitEthernet3/0\n")
-                cfg.write(" no ip address\n")
-                cfg.write(" shutdown\n")
-                cfg.write(" negotiation auto\n")
-                cfg.write("!\n")
-
             # Routage OSPF
             cfg.write(f"router ospf {ospf_proc}\n")
             cfg.write(f" router-id {router_id_ospf}\n")
@@ -168,7 +160,7 @@ def generer_configs(fichier_json):
                 cfg.write(f"router bgp {bgp_as}\n")
                 cfg.write(" bgp log-neighbor-changes\n")
     
-            # Trouver l'autre PE (logique simplifiée pour un lab à 2 PE)
+            # Trouver les autres PE :
             if "PE" in nom_routeur:
                 # On ajoute les voisins iBGP :
                 for autre_nom, autre_infos in routeurs_provider.items():
@@ -178,12 +170,28 @@ def generer_configs(fichier_json):
                         cfg.write(f" neighbor {autre_ip_loop} update-source Loopback0\n")
                         cfg.write(f"!\n")
                 cfg.write(f" address-family vpnv4\n")
-                # On ajouter les voisins dans l'address-family vpnv4 : 
+
+                # On ajoute les voisins iBGP dans l'address-family vpnv4 : 
                 for autre_nom, autre_infos in routeurs_provider.items():
                     if "PE" in autre_nom and autre_nom != nom_routeur:
                         cfg.write(f"  neighbor {autre_ip_loop} activate\n")
                         cfg.write(f"  neighbor {autre_ip_loop} send-community both\n")
-                cfg.write(f" exit-address-family\n")
+                cfg.write(f" exit-address-family\n !\n")
+
+
+                # Ajout des clients en eBGP avec leur VRF : 
+                for nom_iface,infos_iface in routeurs_provider[nom_routeur]["interfaces"].items():
+                    autre_nom = infos_iface.get("voisin")
+                    vrf = infos_iface.get("vrf")
+
+                    if "CE" in autre_nom and vrf != None:
+                        autre_ip_loop = get_ip_lien_inter(autre_nom, nom_routeur)[0]
+                        cfg.write(f" address-family ipv4 vrf {vrf}\n")
+                        cfg.write(f"  neighbor {autre_ip_loop} activate\n")
+                        cfg.write(f"  neighbor {autre_ip_loop} send-community both\n")
+                        cfg.write(f" exit-address-family\n !\n")
+                
+                
             
             cfg.write("!\n")
             cfg.write("ip forward-protocol nd\n")
