@@ -21,40 +21,40 @@
       "PE1": {
         "id": 1,
         "interfaces": {
-          "GigabitEthernet1/0": {"voisin": "P1"},
-          "GigabitEthernet2/0": {"voisin": "P5"},
-          "GigabitEthernet3/0": {"voisin": "CE1"},
-          "GigabitEthernet4/0": {"voisin": "CE3"}
+          "GigabitEthernet1/0": {"voisin": "P1", "vrf" : null},
+          "GigabitEthernet2/0": {"voisin": "P5", "vrf" : null},
+          "GigabitEthernet3/0": {"voisin": "CE1", "vrf" : "Client2"},
+          "GigabitEthernet4/0": {"voisin": "CE3", "vrf" : "Client1"}
         }
       },
       "P1": {
         "id": 2,
         "interfaces": {
-          "GigabitEthernet1/0": {"voisin": "PE1"},
-          "GigabitEthernet2/0": {"voisin": "P2"}
+          "GigabitEthernet1/0": {"voisin": "PE1", "vrf" : null},
+          "GigabitEthernet2/0": {"voisin": "P2", "vrf" : null}
         }
       },
       "P2": {
         "id": 3,
         "interfaces": {
-          "GigabitEthernet1/0": {"voisin": "P1"},
-          "GigabitEthernet2/0": {"voisin": "PE2"}
+          "GigabitEthernet1/0": {"voisin": "P1", "vrf" : null},
+          "GigabitEthernet2/0": {"voisin": "PE2", "vrf" : null}
         }
       },
       "PE2": {
         "id": 4,
         "interfaces": {
-          "GigabitEthernet1/0": {"voisin": "P2"},
-          "GigabitEthernet2/0": {"voisin": "P5"},
-          "GigabitEthernet3/0": {"voisin": "CE2"},
-          "GigabitEthernet4/0": {"voisin": "CE4"}
+          "GigabitEthernet1/0": {"voisin": "P2", "vrf" : null},
+          "GigabitEthernet2/0": {"voisin": "P5", "vrf" : null},
+          "GigabitEthernet3/0": {"voisin": "CE2", "vrf" : "Client1"},
+          "GigabitEthernet4/0": {"voisin": "CE4", "vrf" : "Client2"}
         }
       },
       "P5": {
         "id": 5,
         "interfaces": {
-          "GigabitEthernet1/0": {"voisin": "PE1"},
-          "GigabitEthernet2/0": {"voisin": "PE2"}
+          "GigabitEthernet1/0": {"voisin": "PE1", "vrf" : null},
+          "GigabitEthernet2/0": {"voisin": "PE2", "vrf" : null}
         }
       }
     }
@@ -70,7 +70,7 @@
       "CE1": {
         "id": 1,
         "interfaces": {
-          "GigabitEthernet1/0": {"voisin": "PE1"}
+          "GigabitEthernet1/0": {"voisin": "PE1", "vrf" : null}
         }
       }
     }
@@ -86,7 +86,7 @@
       "CE4": {
         "id": 4,
         "interfaces": {
-          "GigabitEthernet1/0": {"voisin": "PE2"}
+          "GigabitEthernet1/0": {"voisin": "PE2", "vrf" : null}
         }
       }
     }
@@ -102,7 +102,7 @@
       "CE2": {
         "id": 2,
         "interfaces": {
-          "GigabitEthernet1/0": {"voisin": "PE2"}
+          "GigabitEthernet1/0": {"voisin": "PE2", "vrf" : null}
         }
       }
     }
@@ -118,7 +118,7 @@
       "CE3": {
         "id": 3,
         "interfaces": {
-          "GigabitEthernet1/0": {"voisin": "PE1"}
+          "GigabitEthernet1/0": {"voisin": "PE1", "vrf" : null}
         }
       }
     }
