@@ -183,12 +183,13 @@ def generer_configs(fichier_json):
                 for nom_iface,infos_iface in routeurs_provider[nom_routeur]["interfaces"].items():
                     autre_nom = infos_iface.get("voisin")
                     vrf = infos_iface.get("vrf")
+                    bgp_as = infos_iface.get("as")
 
                     if "CE" in autre_nom and vrf != None:
                         autre_ip_loop = get_ip_lien_inter(autre_nom, nom_routeur)[0]
                         cfg.write(f" address-family ipv4 vrf {vrf}\n")
+                        cfg.write(f"  neighbor {autre_ip_loop} remote-as {bgp_as}\n")
                         cfg.write(f"  neighbor {autre_ip_loop} activate\n")
-                        cfg.write(f"  neighbor {autre_ip_loop} send-community both\n")
                         cfg.write(f" exit-address-family\n !\n")
                 
                 
