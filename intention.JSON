@@ -82,7 +82,7 @@
       "ospf_process": null,
       "plage_loopbacks": "192.146.255.0/24",
       "plage_liens": "192.146.10.0/24",
-      "bgp_as": 3,
+      "bgp_as": 4,
       "vrf" : null
     },
     "routeurs": {
