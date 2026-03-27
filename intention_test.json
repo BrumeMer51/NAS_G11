@@ -1,0 +1,52 @@
+{
+  "Plage_liens_inter": "10.0.0.0/24",
+  "AS": {
+    "Provider": {
+      "parametres_globaux": {
+        "ospf_process": 1,
+        "plage_loopbacks": "192.168.255.0/24",
+        "plage_liens": "192.168.10.0/24",
+        "bgp_as": 100,
+        "vrf": {
+          "Client1": {
+            "rd": "100:1",
+            "rt": "100:111"
+          }
+        }
+      },
+      "routeurs": {
+        "PE1": {
+          "id": 1,
+          "interfaces": {
+            "GigabitEthernet1/0": {
+              "voisin": "CE1",
+              "vrf": "Client1",
+              "as": 23
+            }
+          }
+        }
+      }
+    },
+    "Client1_1": {
+      "parametres_globaux": {
+        "ospf_process": null,
+        "plage_loopbacks": "192.145.255.0/24",
+        "plage_liens": "192.145.10.0/24",
+        "bgp_as": 23,
+        "vrf": null
+      },
+      "routeurs": {
+        "CE1": {
+          "id": 1,
+          "interfaces": {
+            "GigabitEthernet1/0": {
+              "voisin": "PE1",
+              "vrf": null,
+              "as": 100
+            }
+          }
+        }
+      }
+    }
+  }
+}
