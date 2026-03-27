@@ -189,6 +189,9 @@ def generer_configs(fichier_json):
                                 cfg.write(f"  neighbor {autre_ip_loop} send-community both\n")
                         cfg.write(f" exit-address-family\n !\n")
 
+                    # Les CE déclarent leur plage IP de leur réseau : 
+                    if "CE" in nom_routeur :
+                        cfg.write(f" network {ip_loopback} mask 255.255.255.255\n")
 
                     # Ajout des clients en eBGP avec leur VRF : 
                     for nom_iface,infos_iface in routeurs_provider[nom_routeur]["interfaces"].items():
