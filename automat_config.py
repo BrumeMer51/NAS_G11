@@ -242,4 +242,4 @@ def generer_configs(fichier_json):
             print(f"Fichier généré avec succès : {nom_fichier}")
 
 if __name__ == "__main__":
-    generer_configs("intention.json")
+    generer_configs("intention_manuel.json")
