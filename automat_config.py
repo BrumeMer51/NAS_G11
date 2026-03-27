@@ -134,11 +134,11 @@ def generer_configs(fichier_json):
                 for nom_iface, iface_data in infos["interfaces"].items():
                     voisin = iface_data.get("voisin")
                     cfg.write(f"interface {nom_iface}\n")
-                    
-                    if voisin:
+
+                    if "P" in nom_routeur and voisin :
                         if iface_data.get("vrf") != None :
                             cfg.write(f" vrf forwarding {iface_data.get('vrf')}\n")
-                        if "CE" not in voisin:
+                        if "CE" not in voisin :
                             ip_iface, masque = get_ip_lien(nom_routeur, voisin)
                             cfg.write(f" ip address {ip_iface} {masque}\n")
                             if ospf_proc != None :
@@ -149,6 +149,11 @@ def generer_configs(fichier_json):
                             ip_iface, masque = get_ip_lien_inter(nom_routeur, voisin)
                             cfg.write(f" ip address {ip_iface} {masque}\n")
                             cfg.write(" negotiation auto\n")
+
+                    elif "C" in nom_routeur and voisin :
+                        ip_iface, masque = get_ip_lien_inter(nom_routeur, voisin)
+                        cfg.write(f" ip address {ip_iface} {masque}\n")
+                        cfg.write(" negotiation auto\n")
 
                     else:
                         cfg.write(" no ip address\n")
