@@ -185,30 +185,29 @@ def generer_configs(fichier_json):
                         # On ajoute les voisins iBGP dans l'address-family vpnv4 : 
                         for autre_nom, autre_infos in routeurs_provider.items():
                             if "PE" in autre_nom and autre_nom != nom_routeur:
-                                cfg.write(f"  neighbor {autre_ip_loop} activate\n")
-                                cfg.write(f"  neighbor {autre_ip_loop} send-community both\n")
+                                # RECALCUL de l'IP ici pour ne pas utiliser la mauvaise variable
+                                ip_v_ibgp = parametres["plage_loopbacks"].replace("0/24", str(autre_infos["id"]))
+                                cfg.write(f"  neighbor {ip_v_ibgp} activate\n")
+                                cfg.write(f"  neighbor {ip_v_ibgp} send-community both\n")
                         cfg.write(f" exit-address-family\n !\n")
 
-                    # Les CE déclarent leur plage IP de leur réseau : 
-                    if "CE" in nom_routeur :
-                        cfg.write(f" network {ip_loopback} mask 255.255.255.255\n")
 
                     # Ajout des clients en eBGP avec leur VRF : 
                     for nom_iface,infos_iface in routeurs_provider[nom_routeur]["interfaces"].items():
                         autre_nom = infos_iface.get("voisin")
                         vrf = infos_iface.get("vrf")
-                        bgp_as = infos_iface.get("as")
+                        as_voisin = infos_iface.get("as")
 
                         if "CE" in autre_nom and vrf != None:
                             autre_ip_loop = get_ip_lien_inter(autre_nom, nom_routeur)[0]
                             cfg.write(f" address-family ipv4 vrf {vrf}\n")
-                            cfg.write(f"  neighbor {autre_ip_loop} remote-as {bgp_as}\n")
+                            cfg.write(f"  neighbor {autre_ip_loop} remote-as {as_voisin}\n")
                             cfg.write(f"  neighbor {autre_ip_loop} activate\n")
                             cfg.write(f" exit-address-family\n !\n")
                         
                         if "PE" in autre_nom and "CE" in nom_routeur : 
                             autre_ip_loop = get_ip_lien_inter(autre_nom, nom_routeur)[0]
-                            cfg.write(f" neighbor {autre_ip_loop} remote-as {bgp_as}\n")
+                            cfg.write(f" neighbor {autre_ip_loop} remote-as {as_voisin}\n")
                             cfg.write(f" neighbor {autre_ip_loop} activate\n")
                             
                     
