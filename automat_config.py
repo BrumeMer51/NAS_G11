@@ -101,7 +101,7 @@ def generer_configs(fichier_json):
                         cfg.write(f" route-target import {parametres["vrf"][client]["rt"]} \n")
                         cfg.write(" !\n")
                         cfg.write(" address-family ipv4 \n")
-                        cfg.write(" exit-adress-family \n")
+                        cfg.write(" exit-address-family \n")
                         cfg.write("!\n")
 
                 cfg.write("!\n!\n!\n")
