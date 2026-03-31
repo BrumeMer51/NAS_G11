@@ -141,8 +141,6 @@ def generer_configs(fichier_json):
                         if "CE" not in voisin :
                             ip_iface, masque = get_ip_lien(nom_routeur, voisin)
                             cfg.write(f" ip address {ip_iface} {masque}\n")
-                            if ospf_proc != None :
-                                cfg.write(f" ip ospf {ospf_proc} area 0\n")
                             cfg.write(" negotiation auto\n")
                             cfg.write(" mpls ip\n")
                         else :
@@ -165,7 +163,19 @@ def generer_configs(fichier_json):
                 if ospf_proc != None:
                     cfg.write(f"router ospf {ospf_proc}\n")
                     cfg.write(f" router-id {router_id_ospf}\n")
-                
+                    # Network pour la loopback : 
+                    cfg.write(f" network {ip_loopback} 0.0.0.0 area 0\n")
+                    # Pour chaque interface connectée, on ajoute une ligne "network" dans OSPF :
+                    for nom_iface, iface_data in infos["interfaces"].items():
+                        voisin = iface_data.get("voisin")
+                        if voisin :
+                            if "P" in nom_routeur and "CE" not in voisin :
+                                ip_iface, masque = get_ip_lien(nom_routeur, voisin)
+                                wildcard = ipaddress.IPv4Address(int(masque) ^ 0xFFFFFFFF)  # Calcul du wildcard à partir du masque
+                                print(wildcard)
+                                cfg.write(f" network {ip_iface} {wildcard} area 0\n")
+                    cfg.write("!\n")
+
                 # Config BGP pour les PE et CE : 
                 if ("PE" in nom_routeur) or ("CE" in nom_routeur) :
                     cfg.write("!\n")
