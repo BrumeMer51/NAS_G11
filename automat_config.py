@@ -130,7 +130,7 @@ def generer_configs(fichier_json):
                 cfg.write(" duplex full\n")
                 cfg.write("!\n")
 
-                # Interfaces GigabitEthernet connectées
+                # Interfaces GigabitEthernet connectées :
                 for nom_iface, iface_data in infos["interfaces"].items():
                     voisin = iface_data.get("voisin")
                     cfg.write(f"interface {nom_iface}\n")
@@ -172,7 +172,6 @@ def generer_configs(fichier_json):
                             if "P" in nom_routeur and "CE" not in voisin :
                                 ip_iface, masque = get_ip_lien(nom_routeur, voisin)
                                 wildcard = ipaddress.IPv4Address(int(masque) ^ 0xFFFFFFFF)  # Calcul du wildcard à partir du masque
-                                print(wildcard)
                                 cfg.write(f" network {ip_iface} {wildcard} area 0\n")
                     cfg.write("!\n")
 
@@ -181,6 +180,10 @@ def generer_configs(fichier_json):
                     cfg.write("!\n")
                     cfg.write(f"router bgp {bgp_as}\n")
                     cfg.write(" bgp log-neighbor-changes\n")
+
+                    # On déclare la loopback des CE :
+                    if "CE" in nom_routeur :
+                        cfg.write(f" network {ip_loopback} mask 255.255.255.255\n")
 
                     # On ajoute les voisins iBGP pour les PE :
                     if ("PE" in nom_routeur) :
