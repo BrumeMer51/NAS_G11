@@ -302,13 +302,20 @@ if __name__ == "__main__":
     print("1. Créer un nouvel intent")
     print("2. Charger un intent existant")
     choix = input("Choix : ").strip()
+    choix_ok = False
 
-    if choix == "2":
-        intent = charger()
-        if intent is None:
-            print("Création d'un nouvel intent à la place.")
+    while not choix_ok:
+        if choix == "2":
+            choix_ok = True
+            intent = charger()
+            if intent is None:
+                print("Création d'un nouvel intent à la place.")
+                intent = creer_intent()
+        elif choix == "1":
+            choix_ok = True
             intent = creer_intent()
-    else:
-        intent = creer_intent()
+        else:
+            print("Choix invalide. Veuillez entrer 1 ou 2.")
+            choix = input("Choix : ").strip()
 
     menu(intent)
